@@ -1,3 +1,5 @@
+require_relative 'languages/swift.rb'
+
 def entitiesFromFiles
   entities = []
   extensions = []
@@ -53,7 +55,7 @@ end
 def createEntities(codeString)
   allEntities(codeString).each do |entity|
     entity.methods =
-      entity.typeString == 'protocol' ?
+      entity.typeString == LANGUAGE_SWIFT[:interface] ?
       (allProtocolMethods(entity.contentsCodeString) +
       allProtocolInits(entity.contentsCodeString)) :
       (allMethods(entity.contentsCodeString) +
@@ -66,7 +68,7 @@ end
 
 def allEntities(codeString)
   entities = []
-  entityRegex = /(?<entityType>(class|struct|protocol|enum))\s+(?!(var|open|public|internal|fileprivate|private|func))(?<name>\w+)(?<genericPart>(<.*>)?)(?<inheritancePart>([^{]*)?)(?<contentsCodeString>{(?>[^{}]|\g<contentsCodeString>)*})/
+  entityRegex = LANGUAGE_SWIFT[:entityRegex]
 
   codeString.scan(entityRegex) do
     matchData = Regexp.last_match
@@ -107,7 +109,7 @@ end
 
 def allExtensions(codeString)
   extensions = []
-  extensionRegex = /extension\s+(?!(var|open|public|internal|fileprivate|private|func))(?<extendedEntityName>\w+)(?<protocols>(\s*:.+?)?)(?<generics>(\s+where\s+.+?)?)(?<contentsCodeString>{(?>[^{}]|\g<contentsCodeString>)*})/
+  extensionRegex = LANGUAGE_SWIFT[:extensionRegex]
 
   codeString.scan(extensionRegex) do
     matchData = Regexp.last_match
@@ -129,7 +131,7 @@ end
 
 def allMethods(codeString)
   methods = []
-  methodRegex = /(?<otherKeywords>(override|open|public|internal|fileprivate|private|static|class|\s)*)\bfunc\s+(?<name>([^{]*))(?<methodBody>{(?>[^{}]|\g<methodBody>)*})/
+  methodRegex = LANGUAGE_SWIFT[:methodRegex]
 
   methodsStrings = []
 
@@ -171,7 +173,7 @@ end
 
 def allInits(codeString)
   methods = []
-  methodRegex = /(?<otherKeywords>(override|open|public|internal|fileprivate|private|\s)+)(?<name>(init[^{]*))(?<methodBody>{(?>[^{}]|\g<methodBody>)*})/
+  methodRegex = LANGUAGE_SWIFT[:initsRegex]
 
   methodsStrings = []
 
@@ -206,7 +208,7 @@ end
 
 def allProtocolMethods(codeString)
   methods = []
-  methodRegex = /((?<isStatic>static)\s+)?func\s+(?<name>((?!static|var|weak|unowned|func|init)[\S\s])+)/
+  methodRegex = LANGUAGE_SWIFT[:protocolMethodsRegex]
 
   methodsStrings = []
 
@@ -228,7 +230,7 @@ end
 
 def allProtocolInits(codeString)
   methods = []
-  methodRegex = /\binit\(((?!static|var|weak|unowned|func|init)[\S\s])+/
+  methodRegex = LANGUAGE_SWIFT[:protocolInitsRegex]
 
   methodsStrings = []
 
@@ -247,7 +249,7 @@ end
 
 def allProperties(codeString)
   properties = []
-  propertyRegex = /(?<otherKeywords>(open|public|internal|fileprivate|private|static|class|struct|weak|unowned|\s)+)?(?<name>(\bvar|\blet)\s+(\w+)\s*((?!open|public|internal|fileprivate|private|static|class|struct|var|let|weak|unowned|@IBOutlet|@IBAction|@IBInspectable|@IBDesignable)[^{=])*)/
+  propertyRegex = LANGUAGE_SWIFT[:propertiesRegex]
   codeString.scan(propertyRegex) do
     matchData = Regexp.last_match
 
@@ -282,7 +284,7 @@ end
 
 def allCases(codeString)
   cases = []
-  caseRegex = /case\s+(?<cases>[\w\,\s]+)/
+  caseRegex = LANGUAGE_SWIFT[:casesRegex]
   codeString.scan(caseRegex) do
     matchData = Regexp.last_match
 

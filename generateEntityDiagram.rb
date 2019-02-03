@@ -10,6 +10,8 @@ require_relative 'rubyResources/entityType.rb'
 require_relative 'rubyResources/swiftEnumCase.rb'
 require_relative 'rubyResources/helpers.rb'
 
+require_relative 'rubyResources/languages/swift.rb'
+
 require 'optparse'
 require 'json'
 
@@ -36,9 +38,9 @@ if !ARGV.empty?
 
   ARGV.each do |folderOrFile|
     if File.directory? folderOrFile
-      $allSwiftFilePaths += (Dir.glob folderOrFile + '/**/*.swift')
+      $allSwiftFilePaths += (Dir.glob folderOrFile + "/**/*.#{LANGUAGE_SWIFT[:extension]}")
       Logger.log.info 'Added the directory\'s file path and all it\'s contents: ' + folderOrFile + ' to the target'
-    elsif File.file?(folderOrFile) && (File.extname(folderOrFile) == '.swift')
+    elsif File.file?(folderOrFile) && (File.extname(folderOrFile) == ".#{LANGUAGE_SWIFT[:extension]}")
       $allSwiftFilePaths << folderOrFile
       Logger.log.info 'Added the file\'s file path: ' + folderOrFile + ' to the target'
     else
@@ -47,7 +49,7 @@ if !ARGV.empty?
   end
 else
   Logger.log.info 'No command line arguments supplied meaning this script\'s containing directory will be the target'
-  $allSwiftFilePaths = Dir.glob __dir__ + '/**/*.swift'
+  $allSwiftFilePaths = Dir.glob __dir__ + "/**/*.#{LANGUAGE_SWIFT[:extension]}"
 end
 
 Logger.log.info 'The targeted swift files: ' + $allSwiftFilePaths.to_s + "\n"
