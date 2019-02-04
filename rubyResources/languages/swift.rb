@@ -1,4 +1,28 @@
 
+# values from regex.
+REGEX = {
+  whiteSpace: /\s/,
+  name: 'name',
+  entityType: 'entityType',
+  inheritancePart: 'inheritancePart',
+  contentsCodeString: 'contentsCodeString', # move to language
+}.freeze
+def regex(string)
+  /#{Regexp.quote(string)}/
+  # Regexp.new(string)
+end
+
+CHAR_EMPTY = ''.freeze
+CHAR_SPACE = ' '.freeze
+
+# UML vocabulary
+UML = {
+
+  entitiy: 'entity',
+  interface: 'interface'
+
+}.freeze
+
 LANGUAGE_SWIFT = {
 
   extension: 'swift',
@@ -6,9 +30,21 @@ LANGUAGE_SWIFT = {
   entities: {
     class: 'class',
     struct: 'struct',
-    enum: 'enum',
+    enum: 'enum'
   },
   interface: 'protocol',
+
+  inheritanceDelimiter: ':',
+  inheritanceEnumerationDelimiter: ',',
+
+  multiCommentStart: '/*',
+  multiCommentEnd: '*/',
+
+  multiComment: /\/\*((?!(\/\*|\*\/))[\S\s])*\*\//,
+  lineComment: /\/\/.*$/,
+
+  matchExtensions: 'extendedEntityName',
+  matchInterfaces: 'protocols',
 
   entityRegex: /(?<entityType>(class|struct|protocol|enum))\s+(?!(var|open|public|internal|fileprivate|private|func))(?<name>\w+)(?<genericPart>(<.*>)?)(?<inheritancePart>([^{]*)?)(?<contentsCodeString>{(?>[^{}]|\g<contentsCodeString>)*})/,
   extensionRegex: /extension\s+(?!(var|open|public|internal|fileprivate|private|func))(?<extendedEntityName>\w+)(?<protocols>(\s*:.+?)?)(?<generics>(\s+where\s+.+?)?)(?<contentsCodeString>{(?>[^{}]|\g<contentsCodeString>)*})/,

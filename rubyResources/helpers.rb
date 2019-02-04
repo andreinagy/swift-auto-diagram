@@ -35,18 +35,22 @@ def removeCommentsAndStringsInCodeString(codeString)
   Logger.log.info 'Removed strings from the content. Updated contents:'
   Logger.log.info Logger.safeCodeContents(codeString)
 
-  while codeString.include?('/*') && codeString.include?('*/')
-    codeString.gsub! /\/\*((?!(\/\*|\*\/))[\S\s])*\*\//, ''
-    Logger.log.info 'Removing multiline comments from the content. Updated contents:'
+  while codeString.include?(LANGUAGE_SWIFT[:multiCommentStart]) &&
+        codeString.include?(LANGUAGE_SWIFT[:multiCommentEnd])
+    codeString.gsub! LANGUAGE_SWIFT[:multiComment], CHAR_EMPTY
+    Logger.log.info 'Removing multiline comments from the content.\
+     Updated contents:'
     Logger.log.info Logger.safeCodeContents(codeString)
   end
 
-  Logger.log.info 'Removed multiline comments from the content. Updated contents:'
+  Logger.log.info 'Removed multiline comments from the content.\
+   Updated contents:'
   Logger.log.info Logger.safeCodeContents(codeString)
 
-  codeString.gsub! /\/\/.*$/, ''
+  codeString.gsub! LANGUAGE_SWIFT[:lineComment], CHAR_EMPTY
 
-  Logger.log.info 'Removed single line comments from the content. Updated contents:'
+  Logger.log.info 'Removed single line comments from the content.\
+   Updated contents:'
   Logger.log.info Logger.safeCodeContents(codeString)
 
   codeString
@@ -73,19 +77,19 @@ def allEntities(codeString)
   codeString.scan(entityRegex) do
     matchData = Regexp.last_match
 
-    entityType = matchData['entityType']
-    entityName = matchData['name']
+    entityType = matchData[REGEX[:entityType]]
+    entityName = matchData[REGEX[:name]]
 
-    inheritancePart = matchData['inheritancePart']
-    inheritancePart.delete! ':'
-    inheritancePart.gsub! /\s/, ''
-    inheritedEntities = inheritancePart.split ','
+    inheritancePart = matchData[REGEX[:inheritancePart]]
+    inheritancePart.delete! LANGUAGE_SWIFT[:inheritanceDelimiter]
+    inheritancePart.gsub! REGEX[:whiteSpace], CHAR_EMPTY
+    inheritedEntities = inheritancePart.split LANGUAGE_SWIFT[:inheritanceEnumerationDelimiter]
 
-    contentsCodeString = matchData['contentsCodeString'][1...-1]
+    contentsCodeString = matchData[REGEX[:contentsCodeString]][1...-1]
 
     startIndex = matchData.begin(0)
-    contentsStartIndex = matchData.begin('contentsCodeString') + 1
-    contentsEndIndex = matchData.end('contentsCodeString') - 1
+    contentsStartIndex = matchData.begin(REGEX[:contentsCodeString]) + 1
+    contentsEndIndex = matchData.end(REGEX[:contentsCodeString]) - 1
 
     subEntities = allEntities contentsCodeString
     entities += subEntities
@@ -93,11 +97,16 @@ def allEntities(codeString)
     subEntitiesContents = subEntities.map do |subEntity|
       contentsCodeString[(subEntity.startIndex)..(subEntity.contentsEndIndex)]
     end.each do |subEntityContents|
-      contentsCodeString.gsub! subEntityContents, ''
+      contentsCodeString.gsub! subEntityContents, CHAR_EMPTY
     end
 
-    newEntity = EntityType.new(entityType, entityName, inheritedEntities,
-                               contentsCodeString, startIndex, contentsStartIndex, contentsEndIndex)
+    newEntity = EntityType.new(entityType,
+                               entityName,
+                               inheritedEntities,
+                               contentsCodeString,
+                               startIndex,
+                               contentsStartIndex,
+                               contentsEndIndex)
 
     newEntity.containedEntities += subEntities
 
@@ -114,14 +123,14 @@ def allExtensions(codeString)
   codeString.scan(extensionRegex) do
     matchData = Regexp.last_match
 
-    extendedEntityName = matchData['extendedEntityName']
+    extendedEntityName = matchData[LANGUAGE_SWIFT[:matchExtensions]]
 
-    protocols = matchData['protocols']
-    protocols.delete! ':'
-    protocols.gsub! /\s/, ''
-    protocols = protocols.split ','
+    protocols = matchData[LANGUAGE_SWIFT[:matchInterfaces]]
+    protocols.delete! LANGUAGE_SWIFT[:inheritanceDelimiter]
+    protocols.gsub! REGEX[:whiteSpace], CHAR_EMPTY
+    protocols = protocols.split LANGUAGE_SWIFT[:inheritanceEnumerationDelimiter]
 
-    contentsCodeString = matchData['contentsCodeString'][1...-1]
+    contentsCodeString = matchData[REGEX[:contentsCodeString]][1...-1]
 
     extensions << EntityExtension.new(protocols, extendedEntityName, contentsCodeString)
   end
@@ -180,7 +189,7 @@ def allInits(codeString)
   codeString.scan(methodRegex) do
     matchData = Regexp.last_match
 
-    otherKeywords = matchData['otherKeywords'].gsub(/\s{2,}/, ' ').strip.split(' ')
+    otherKeywords = matchData['otherKeywords'].gsub(/\s{2,}/, CHAR_SPACE).strip.split(CHAR_SPACE)
 
     accessLevel = 'internal'
     type = 'instance'
@@ -241,7 +250,7 @@ def allProtocolInits(codeString)
   end
 
   methodsStrings.each do |methodString|
-    codeString.gsub! methodString, ''
+    codeString.gsub! methodString, CHAR_EMPTY
   end
 
   methods
