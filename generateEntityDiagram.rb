@@ -15,10 +15,16 @@ require_relative 'rubyResources/languages/swift.rb'
 require 'optparse'
 require 'json'
 
+print_to_console = false
+
 parser = OptionParser.new do |options|
   options.on('-v', '--verbose', 'Displays full logs') do
     Logger.log.level = Logger::DEBUG
     Logger.log.info 'Will display full logs'
+  end
+
+  options.on('-p', '--print', 'Prints JSON to console without opening the browser') do
+    print_to_console = true
   end
 
   options.on('-h', '--help', 'Displays Help') do
@@ -58,7 +64,11 @@ Logger.log.info 'The targeted swift files: ' + $allSwiftFilePaths.to_s + "\n"
 
 resourcesFilePath = __dir__ + '/htmltemplate/js/'
 
-updateEntitiesJSONStringInScript entitiesFromFiles.to_json,
-                                 resourcesFilePath + 'parser-output.js'
+if print_to_console
+  puts entitiesFromFiles.to_json
+else
+  updateEntitiesJSONStringInScript entitiesFromFiles.to_json,
+                                   resourcesFilePath + 'parser-output.js'
 
-openFile __dir__ + '/htmltemplate/diagram.html'
+  openFile __dir__ + '/htmltemplate/diagram.html'
+end

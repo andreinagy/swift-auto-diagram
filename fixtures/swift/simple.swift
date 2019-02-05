@@ -1,60 +1,64 @@
 
-enum SimpleEnum {
+// Types that are not defined in the source code.
+extension String {
+	func method()
+}
+
+// Simple types definitions
+enum UnrelatedEnum {
     case north
     case south
     case east
     case west
 
-    func enumMethod() {
+    func method() {
 
     }
 }
 
-struct SimpleStruct {
+struct UnrelatedStruct {
     let string: String
     let number: Int
 }
 
-struct GenericStruct<Bucketable> {
-    var items = [Bucketable]()
+struct UnrelatedGenericStruct<TypeConstraint> {
+    var array = [TypeConstraint]()
 
-    mutating func add(item: Bucketable) {
-        items.append(item)
-    }
-
-    mutating func remove() {
-        items = []
+    mutating func add(item: TypeConstraint) {
+        array.append(item)
     }
 }
 
-class SimpleClass {
-    let field: Double
-    let field1: Double
+class UnrelatedClass {
+    let int: Int
+    let double: Double
 
     func method() -> String {
 
     }
 }
 
-protocol SimpleProtocol {
+protocol UnrelatedProtocol {
     var field: String { get set }
-    func protocolMethod() -> String
+    func method() -> String
 }
 
-protocol AnotherSimpleProtocol {
-    var field: String { get set }
-    func anotherProtocolMethod() -> String
+// Nested types
+class NestedTypeClass {
+	struct Constants {
+		let point: CGPoint
+		let lineWidth: CGFloat
+	}
+	// commit 2b94196 doesn't detect field.
+	field: String
+	func method() {
+	
+	}
 }
 
-struct ProtocolConformingStruct: SimpleProtocol {
-    var field: String
-    func protocolMethod() -> String {
-        return field
-    }
-}
-
+// Inheritance
 class InheritedClass: SimpleClass {
-    let field3: Int
+    let field: Int
 
     func method() -> String {
         
@@ -65,15 +69,49 @@ class InheritedClass: SimpleClass {
     }
 }
 
-class MultipleProtocolConformingClass: 
-SimpleProtocol, 
-{
-    let multipleProtocolField
+// Protocols conformance
+// commit 2b94196 shows field and func on the same line
+protocol ProtocolBasic {
+    var field: String { get set }
+    func method() -> String
 }
 
-class MultipleProtocolConformingClass: AnotherSimpleProtocol {
-    func anotherSimpleProtocolExtensionMethod() {
-        
+protocol ProtocolAdvanced {
+    var field: String { get set }
+    func method() -> String
+}
+
+struct ProtcolConformingStruct: ProtocolBasic {
+	var field: String
+    func method() -> String
+}
+
+struct ProtocolConformingStruct: ProtocolBasic {
+    var field: String
+    func method() -> String {
+        return field
     }
 }
 
+class SingleProtocolConformingClass: ProtocolBasic {
+	var field: String
+	func method() -> String {
+	
+	}
+}
+
+// commit 2b94196 shows conformance only to ProtocolBasic
+class MultipleProtocolConformingClass: ProtocolBasic, ProtocolAdvanced {
+    let multipleProtocolField
+}
+
+class ExtensionConformingProtocolClass {
+
+}
+
+// commit 2b94196 shows extension extension
+extension ExtensionConformingProtocolClass: ProtocolBasic {
+    func method() {
+        
+    }
+}

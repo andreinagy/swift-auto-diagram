@@ -9,7 +9,7 @@ REGEX = {
 }.freeze
 
 def make_regexp(string)
-  puts "----------"
+  puts '----------'
   puts string
   # /#{Regexp.quote(string)}/
   # Regexp.new(string)
@@ -52,19 +52,19 @@ LANGUAGE_SWIFT = {
 
   entityRegexString: "(?<entityType>(class|struct|protocol|enum))\s+(?!(var|open|public|internal|fileprivate|private|func))(?<name>\w+)(?<genericPart>(<.*>)?)(?<inheritancePart>([^{]*)?)(?<contentsCodeString>{(?>[^{}]|\g<contentsCodeString>)*})",
   # entityRegex: /(?<entityType>(class|struct|protocol|enum))\s+(?!(var|open|public|internal|fileprivate|private|func))(?<name>\w+)(?<genericPart>(<.*>)?)(?<inheritancePart>([^{]*)?)(?<contentsCodeString>{(?>[^{}]|\g<contentsCodeString>)*})/,
-        # entityRegex: %r{
-        #   (?<entityType>(class|struct|protocol|enum))\s+(?!(var|open|public|internal|fileprivate|private|func))(?<name>\w+)(?<genericPart>(<.*>)?)(?<inheritancePart>([^{]*)?)(?<contentsCodeString>{(?>[^{}]|\g<contentsCodeString>)*})
-        #     }x,
+  # entityRegex: %r{
+  #   (?<entityType>(class|struct|protocol|enum))\s+(?!(var|open|public|internal|fileprivate|private|func))(?<name>\w+)(?<genericPart>(<.*>)?)(?<inheritancePart>([^{]*)?)(?<contentsCodeString>{(?>[^{}]|\g<contentsCodeString>)*})
+  #     }x,
 
-        entityRegex: %r{
+  entityRegex: /
               (?<entityType>(class|struct|protocol|enum))\s+
               (?!(var|open|public|internal|fileprivate|private|func))(?<name>\w+)
               (?<genericPart>(<.*>)?)
               (?<inheritancePart>([^\{]*)?)
                 (?<contentsCodeString>{(?>[^{}]|\g<contentsCodeString>)*})
-            }x,
+            /x,
 
-            # (?<inheritancePart>([^{]*)?) -- is the offending part
+  # (?<inheritancePart>([^{]*)?) -- is the offending part
   extensionRegex: /extension\s+(?!(var|open|public|internal|fileprivate|private|func))(?<extendedEntityName>\w+)(?<protocols>(\s*:.+?)?)(?<generics>(\s+where\s+.+?)?)(?<contentsCodeString>{(?>[^{}]|\g<contentsCodeString>)*})/,
   methodRegex: /(?<otherKeywords>(override|open|public|internal|fileprivate|private|static|class|\s)*)\bfunc\s+(?<name>([^{]*))(?<methodBody>{(?>[^{}]|\g<methodBody>)*})/,
   initsRegex: /(?<otherKeywords>(override|open|public|internal|fileprivate|private|\s)+)(?<name>(init[^{]*))(?<methodBody>{(?>[^{}]|\g<methodBody>)*})/,
